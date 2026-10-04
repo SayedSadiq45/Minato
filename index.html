@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>波風ミナト — MINATO NAMIKAZE / 黄色い閃光</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@300;500;700;900&family=Anton&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="minato.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ══════════ PRELOADER — 飛雷神の術式 ══════════ -->
+<div class="loader" id="loader">
+  <div class="loader__inner">
+    <svg class="loader__seal" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="sealring" cx="60" cy="60" r="52" />
+      <circle class="sealring sealring--in" cx="60" cy="60" r="38" />
+      <path class="sealmark" d="M60 22 L60 98 M28 44 L92 44 M36 76 L84 76 M60 22 L34 62 M60 22 L86 62" />
+    </svg>
+    <div class="loader__glyph">飛雷神</div>
+    <div class="loader__bar"><span id="loaderFill"></span></div>
+    <div class="loader__meta">
+      <span id="loaderMsg">術式展開 / DEPLOYING FORMULA</span>
+      <span id="loaderPct">00</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ AMBIENT LAYERS ══════════ -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<canvas class="sky" id="skyCanvas" aria-hidden="true"></canvas>
+<canvas class="sparks" id="sparkCanvas" aria-hidden="true"></canvas>
+<canvas class="thundersky" id="thunderCanvas" aria-hidden="true"></canvas>
+<div class="thunderflash" id="legacyFlash" aria-hidden="true"></div>
+<div class="flashwipe" id="flashWipe" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><i></i><b></b></div>
+
+<!-- ══════════ FIXED CHROME ══════════ -->
+<header class="chrome" id="chrome">
+  <a class="chrome__mark" href="#top">
+    <svg viewBox="0 0 100 100" class="kunai" aria-hidden="true">
+      <path d="M50 6 L62 26 L50 34 L38 26 Z" fill="currentColor"/>
+      <rect x="46.5" y="34" width="7" height="8" fill="currentColor" opacity=".65"/>
+      <rect x="47.5" y="42" width="5" height="36" fill="currentColor" opacity=".45"/>
+      <circle cx="50" cy="84" r="9" fill="none" stroke="currentColor" stroke-width="3.5"/>
+    </svg>
+    <span>四代目</span>
+  </a>
+  <nav class="chrome__nav">
+    <a href="#top" data-jp="覚">AWAKEN</a>
+    <a href="#particles" data-jp="塵">PARTICLES</a>
+    <a href="#hiraishin" data-jp="雷">HIRAISHIN</a>
+    <a href="#rasengan" data-jp="螺">RASENGAN</a>
+    <a href="#legacy" data-jp="遺">LEGACY</a>
+  </nav>
+  <div class="chrome__clock" id="chromeClock">00.0 s</div>
+</header>
+
+<div class="rail rail--left" aria-hidden="true">
+  <span>木ノ葉隠れの里 · KONOHAGAKURE · 火影岩</span>
+</div>
+<div class="rail rail--right" aria-hidden="true">
+  <span id="railScroll">SPEED 000</span>
+</div>
+
+<main>
+
+<!-- ══════════ ACT I — SCROLL SCRUB: 覚醒 ══════════ -->
+<section class="scrub" id="top">
+  <div class="scrub__sticky">
+    <canvas id="gazeCanvas"></canvas>
+    <div class="scrub__wash" id="scrubWash"></div>
+    <div class="scrub__bars" aria-hidden="true"><i></i><i></i></div>
+
+    <!-- title lockup, only in the opening beat -->
+    <div class="titleblock" id="titleblock">
+      <p class="titleblock__kicker">四代目火影 · 木ノ葉隠れの里</p>
+      <h1 class="titleblock__jp">波風<span>ミナト</span></h1>
+      <p class="titleblock__en">M I N A T O &nbsp; N A M I K A Z E</p>
+      <div class="creator-signal" aria-label="Created by Sayed Sadiq">
+        <span class="creator-signal__label">AURA / CREATED BY</span>
+        <strong>SAYED SADIQ</strong>
+      </div>
+    </div>
+
+    <div class="scrub__scrim" aria-hidden="true"></div>
+
+    <div class="phase" data-phase="0">
+      <h2 class="phase__jp">静けさ</h2>
+      <p class="phase__en">STILLNESS</p>
+      <p class="phase__sub">「守りたいものがある限り、俺は負けない。」</p>
+    </div>
+    <div class="phase" data-phase="1">
+      <h2 class="phase__jp">開眼</h2>
+      <p class="phase__en">HE OPENS HIS EYES</p>
+      <p class="phase__sub">Nine years of war end in the second it takes him to look up.</p>
+    </div>
+    <div class="phase" data-phase="2">
+      <h2 class="phase__jp">仙法</h2>
+      <p class="phase__en">SAGE MODE</p>
+      <p class="phase__sub">自然エネルギー — the mountain lends him its patience.</p>
+    </div>
+    <div class="phase" data-phase="3">
+      <h2 class="phase__jp">閃光</h2>
+      <p class="phase__en">THE YELLOW FLASH</p>
+      <p class="phase__sub">「一瞬でいい。 その一瞬に、全部を賭ける。」</p>
+    </div>
+
+    <div class="scrub__readout"><span id="scrubReadout">FRAME 001 / 071</span></div>
+    <div class="hint" id="heroHint"><span>下へ · SCROLL TO OPEN HIS EYES</span></div>
+  </div>
+</section>
+<!-- ══════════ ACT V — RASENGAN, TRACKED LEFT TO RIGHT ══════════ -->
+<section class="ras" id="rasengan">
+  <div class="ras__sticky">
+    <canvas id="rasCanvas"></canvas>
+    <canvas class="ras__chakra" id="chakraCanvas" aria-hidden="true"></canvas>
+
+    <div class="ras__copy">
+      <span class="eyebrow" data-decrypt="A 級 · 螺旋丸">A 級 · 螺旋丸</span>
+      <h2 data-split>手の中で</h2>
+      <p>三年かけて形にした。 Three years to shape chakra into a sphere that needs no
+        hand seals at all. <b>Move left to right</b> — the sphere follows your hand.</p>
+      <div class="ras__gauge">
+        <div class="ras__gauge-bar"><span id="rasFill"></span></div>
+        <div class="ras__gauge-meta">
+          <span id="rasPos">位置 左 00%</span>
+          <span id="rasFrame">FRAME 01 / 33</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ras__track" id="rasTrack" aria-hidden="true">
+      <span class="ras__track-l">左</span>
+      <i></i>
+      <span class="ras__track-r">右</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ACT II — PARTICLE OBJECT ══════════ -->
+<section class="hero" id="particles">
+  <canvas class="hero__particles" id="particleCanvas"></canvas>
+  <div class="hero__fallback" id="heroFallback" hidden>
+    <img src="art/hero.jpg" alt="Minato Namikaze overlooking Konoha" />
+    <div class="cornermask" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero__grid" aria-hidden="true"></div>
+
+  <div class="hero__copy">
+    <p class="hero__kicker" data-decrypt="塵一つ残さず · REDUCED TO PARTICLES">塵一つ残さず · REDUCED TO PARTICLES</p>
+    <h2 class="hero__title">
+      <span class="hero__jp" data-split>掴めない</span>
+      <span class="hero__en" data-split>YOU&nbsp;CANNOT&nbsp;HOLD&nbsp;HIM</span>
+    </h2>
+    <p class="hero__lede" data-reveal>
+      黄色い閃光。 They never saw him arrive — only the space where an enemy used to be.
+      Sweep your cursor through him and he scatters; he reassembles faster than you can
+      finish the gesture.
+    </p>
+    <div class="hero__stats">
+      <div class="stat" data-reveal><b data-count="0.32" data-dec="2">0.00</b><i>s 反応 · REACTION</i></div>
+      <div class="stat" data-reveal><b data-count="1000">0</b><i>体 敵軍 · ENEMIES, ALONE</i></div>
+      <div class="stat" data-reveal><b data-count="4">0</b><i>代目 火影 · HOKAGE</i></div>
+    </div>
+    <a class="magnet" href="#hiraishin" data-magnet>
+      <span class="magnet__in">
+        <span class="magnet__jp">下へ</span>
+        <span class="magnet__en">FOLLOW THE FLASH</span>
+      </span>
+    </a>
+  </div>
+</section>
+
+
+<!-- ══════════ ACT III — HIRAISHIN ══════════ -->
+<section style="display: none;" class="hira" id="hiraishin">
+  <canvas class="hira__bolts" id="boltCanvas" aria-hidden="true"></canvas>
+
+  
+</section>
+
+<!-- ══════════ ACT IV — 残像 / FULL-BLEED DASH ══════════ -->
+<section class="dash" id="dash">
+  <div class="dash__sticky">
+    <canvas id="dashCanvas"></canvas>
+    <div class="dash__streaks" aria-hidden="true"></div>
+    <div class="dash__copy">
+      <span class="eyebrow" data-decrypt="残像 · WHAT THE ENEMY ACTUALLY SEES">残像 · WHAT THE ENEMY ACTUALLY SEES</span>
+      <h2 data-split>速すぎる</h2>
+      <p>左から右へ、一息で。 Seventy-one frames is the whole of it — the entire
+        distance between standing still and standing behind you.</p>
+    </div>
+    <div class="dash__readout"><span id="dashReadout">0.00 s</span></div>
+  </div>
+</section>
+
+
+
+<!-- ══════════ ACT VI — LEGACY: GHOST CURSOR + THUNDER ══════════ -->
+<section class="legacy" id="legacy">
+  <div class="legacy__plate" aria-hidden="true"></div>
+  <div class="legacy__reveal" id="legacyReveal" aria-hidden="true"></div>
+  <canvas class="legacy__ghost" id="ghostCanvas" aria-hidden="true"></canvas>
+  <div class="cornermask" aria-hidden="true"></div>
+
+  <div class="legacy__inner">
+    <p class="eyebrow" data-decrypt="十月十日 · THE NIGHT OF THE NINE-TAILS">十月十日 · THE NIGHT OF THE NINE-TAILS</p>
+ 
+    <p class="legacy__hint">動かせ · SWEEP THE DARK TO FIND HIM</p>
+  </div>
+   <div class="footer__big" data-split>またな</div>
+
+  <div class="legacy__seal" aria-hidden="true">
+    <span class="legacy__seal-jp">八卦の封印式</span>
+  </div>
+</section>
+
+
+
+</main>
+
+<footer class="creator-footer" aria-label="Creator links">
+  <p class="creator-footer__label">AURA / MINATO EXPERIENCE</p>
+  <h2 class="creator-footer__name">SAYED SADIQ</h2>
+  <div class="creator-footer__links">
+    <a href="https://www.linkedin.com/in/sayed-sadiq45/" target="_blank" rel="noopener noreferrer">
+      <span>LINKEDIN</span><small>/ SAYED-SADIQ45</small>
+    </a>
+    <a href="https://github.com/SayedSadiq45" target="_blank" rel="noopener noreferrer">
+      <span>GITHUB</span><small>/ SAYEDSADIQ45</small>
+    </a>
+  </div>
+</footer>
+
+<div class="badge" id="badge">
+  <span class="badge__jp">黄色い閃光</span>
+  <span class="badge__en">YELLOW FLASH</span>
+</div>
+
+<script type="module" src="minato.js"></script>
+</body>
+</html>
